@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package facebook4j;
 
 import facebook4j.auth.AccessToken;
@@ -30,7 +29,6 @@ import facebook4j.internal.json.z_F4JInternalFactory;
 import facebook4j.internal.json.z_F4JInternalJSONImplFactory;
 import facebook4j.internal.org.json.JSONException;
 import facebook4j.internal.org.json.JSONObject;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -41,18 +39,23 @@ import java.io.Serializable;
  * @author Ryuji Yamashita - roundrop at gmail.com
  */
 abstract class FacebookBaseImpl implements Serializable, OAuthSupport {
+
     private static final long serialVersionUID = 5812835429308976884L;
 
     protected transient HttpClientWrapper http;
+
     protected z_F4JInternalFactory factory;
 
     protected Configuration conf;
+
     protected Authorization auth;
-    
+
     protected transient String id;
+
     protected transient String name;
 
-    /*package*/ FacebookBaseImpl(Configuration conf, Authorization auth) {
+    /*package*/
+    FacebookBaseImpl(Configuration conf, Authorization auth) {
         this.conf = conf;
         this.auth = auth;
         init();
@@ -97,8 +100,7 @@ abstract class FacebookBaseImpl implements Serializable, OAuthSupport {
      */
     public String getId() throws FacebookException, IllegalStateException {
         if (!auth.isEnabled()) {
-            throw new IllegalStateException(
-                    "Neither user ID/password combination nor OAuth app ID/secret combination supplied");
+            throw new IllegalStateException("Neither user ID/password combination nor OAuth app ID/secret combination supplied");
         }
         if (id == null) {
             fillInIDAndName();
@@ -111,8 +113,7 @@ abstract class FacebookBaseImpl implements Serializable, OAuthSupport {
      */
     public String getName() throws FacebookException, IllegalStateException {
         if (!auth.isEnabled()) {
-            throw new IllegalStateException(
-                    "Neither user ID/password combination nor OAuth app ID/secret combination supplied");
+            throw new IllegalStateException("Neither user ID/password combination nor OAuth app ID/secret combination supplied");
         }
         if (name == null) {
             fillInIDAndName();
@@ -149,7 +150,8 @@ abstract class FacebookBaseImpl implements Serializable, OAuthSupport {
      * {@inheritDoc}
      */
     public void shutdown() {
-        if (http != null) http.shutdown();
+        if (http != null)
+            http.shutdown();
     }
 
     protected final void ensureAuthorizationEnabled() {
@@ -162,25 +164,20 @@ abstract class FacebookBaseImpl implements Serializable, OAuthSupport {
         // http://docs.oracle.com/javase/6/docs/platform/serialization/spec/output.html#861
         out.putFields();
         out.writeFields();
-
         out.writeObject(conf);
         out.writeObject(auth);
     }
 
-    private void readObject(ObjectInputStream stream)
-            throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         // http://docs.oracle.com/javase/6/docs/platform/serialization/spec/input.html#2971
         stream.readFields();
-
         conf = (Configuration) stream.readObject();
         auth = (Authorization) stream.readObject();
         http = new HttpClientWrapper(conf);
         setFactory();
     }
 
-
     // methods declared in OAuthSupport interface
-
     /**
      * {@inheritDoc}
      */
@@ -195,8 +192,7 @@ abstract class FacebookBaseImpl implements Serializable, OAuthSupport {
             OAuthAuthorization oauth = new OAuthAuthorization(conf);
             oauth.setOAuthAppId(appId, appSecret);
             this.auth = oauth;
-        } else
-        if (auth instanceof OAuthAuthorization) {
+        } else if (auth instanceof OAuthAuthorization) {
             throw new IllegalStateException("app id/secret pair already set.");
         }
     }
@@ -214,7 +210,7 @@ abstract class FacebookBaseImpl implements Serializable, OAuthSupport {
     public String getOAuthAuthorizationURL(String callbackURL) {
         return getOAuthAuthorizationURL(callbackURL, new NullAuthOption());
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -240,14 +236,14 @@ abstract class FacebookBaseImpl implements Serializable, OAuthSupport {
     /**
      * {@inheritDoc}
      */
-    synchronized public AccessToken getOAuthAccessToken(String oauthCode) throws FacebookException {
+    public synchronized AccessToken getOAuthAccessToken(String oauthCode) throws FacebookException {
         return getOAuth().getOAuthAccessToken(oauthCode);
     }
 
     /**
      * {@inheritDoc}
      */
-    synchronized public AccessToken getOAuthAccessToken(String oauthCode, String callbackURL) throws FacebookException {
+    public synchronized AccessToken getOAuthAccessToken(String oauthCode, String callbackURL) throws FacebookException {
         return getOAuth().getOAuthAccessToken(oauthCode, callbackURL);
     }
 
@@ -258,20 +254,19 @@ abstract class FacebookBaseImpl implements Serializable, OAuthSupport {
         return getOAuth().getOAuthAppAccessToken();
     }
 
-    synchronized public DeviceCode getOAuthDeviceCode() throws FacebookException {
+    public synchronized DeviceCode getOAuthDeviceCode() throws FacebookException {
         return getOAuth().getOAuthDeviceCode();
     }
 
-    synchronized public AccessToken getOAuthDeviceToken(DeviceCode deviceCode) throws FacebookException {
+    public synchronized AccessToken getOAuthDeviceToken(DeviceCode deviceCode) throws FacebookException {
         return getOAuth().getOAuthDeviceToken(deviceCode);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void setOAuthAccessToken(AccessToken accessToken) {
         getOAuth().setOAuthAccessToken(accessToken);
-        
     }
 
     /**
@@ -293,7 +288,7 @@ abstract class FacebookBaseImpl implements Serializable, OAuthSupport {
     }
 
     public AccessToken extendTokenExpiration() throws FacebookException {
-        return extendTokenExpiration(getOAuth().getOAuthAccessToken().getToken());
+        return extendTokenExpiration();
     }
 
     public AccessToken getOAuthAccessTokenInfo(String accessToken) throws FacebookException {
@@ -350,8 +345,6 @@ abstract class FacebookBaseImpl implements Serializable, OAuthSupport {
 
     @Override
     public String toString() {
-        return "FacebookBaseImpl [http=" + http + ", conf=" + conf + ", auth="
-                + auth + "]";
+        return "FacebookBaseImpl [http=" + http + ", conf=" + conf + ", auth=" + auth + "]";
     }
-
 }

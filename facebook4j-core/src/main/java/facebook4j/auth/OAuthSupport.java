@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package facebook4j.auth;
 
 import facebook4j.FacebookException;
@@ -22,6 +21,7 @@ import facebook4j.FacebookException;
  * @author Ryuji Yamashita - roundrop at gmail.com
  */
 public interface OAuthSupport {
+
     /**
      * sets the OAuth AppID and App secret
      *
@@ -40,7 +40,9 @@ public interface OAuthSupport {
     void setOAuthPermissions(String permissions);
 
     String getOAuthAuthorizationURL(String callbackURL);
+
     String getOAuthAuthorizationURL(String callbackURL, String state);
+
     String getOAuthAuthorizationURL(String callbackURL, AuthOption authOption);
 
     /**
@@ -108,7 +110,7 @@ public interface OAuthSupport {
      * @see <a href="https://developers.facebook.com/docs/facebook-login/for-devices">Facebook Login for Devices</a>
      */
     AccessToken getOAuthDeviceToken(DeviceCode deviceCode) throws FacebookException;
-    
+
     /**
      * Sets the access token
      *
@@ -128,7 +130,6 @@ public interface OAuthSupport {
      * @param callbackURL Callback URL
      */
     void setOAuthCallbackURL(String callbackURL);
-
 
     /**
      * Extends the short-lived-token expiration.
@@ -153,4 +154,12 @@ public interface OAuthSupport {
      * @throws FacebookException when Facebook service or network is unavailable, or the user has not authorized
      */
     AccessToken getOAuthAccessTokenInfo() throws FacebookException;
+
+    /**
+     * Extends this instance's short-lived-token expiration.
+     * @return extended access token
+     * @throws FacebookException when Facebook service or network is unavailable, or the user has not authorized
+     * @see <a href="https://developers.facebook.com/docs/facebook-login/access-tokens/expiration-and-extension">Expiration and Extension of Access Tokens - Facebook Login</a>
+     */
+    AccessToken extendTokenExpiration() throws FacebookException;
 }

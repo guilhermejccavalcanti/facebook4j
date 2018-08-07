@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package facebook4j.auth;
 
 import facebook4j.FacebookException;
@@ -22,7 +21,6 @@ import facebook4j.internal.http.HttpClientWrapper;
 import facebook4j.internal.http.HttpResponse;
 import facebook4j.internal.logging.Logger;
 import facebook4j.internal.util.z_F4JLRUCache;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
@@ -35,6 +33,7 @@ import java.security.NoSuchAlgorithmException;
  * @see <a href="http://oauth.net/core/1.0a/">OAuth Core 1.0a</a>
  */
 public class OAuthAuthorization implements Authorization, OAuthSupport, Security, java.io.Serializable {
+
     private static final long serialVersionUID = 2548925849295080874L;
 
     private static final Logger logger = Logger.getLogger(OAuthAuthorization.class);
@@ -42,17 +41,22 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
     public static final String HMAC_SHA_256 = "HmacSHA256";
 
     private final Configuration conf;
-    private transient static HttpClientWrapper http;
+
+    private static transient HttpClientWrapper http;
 
     private String appId = "";
-    private String appSecret;
-    private AccessToken oauthToken;
-    private String permissions;
-    private String callbackURL;
-    private boolean appSecretProofEnabled;
-    private transient z_F4JLRUCache<String, String> appSecretProofCache;
 
-    // constructors
+    private String appSecret;
+
+    private AccessToken oauthToken;
+
+    private String permissions;
+
+    private String callbackURL;
+
+    private boolean appSecretProofEnabled;
+
+    private transient z_F4JLRUCache<String, String> appSecretProofCache;
 
     /**
      * @param conf Configuration
@@ -86,7 +90,6 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
     }
 
     // implementation for OAuthSupport interface
-
     public String getOAuthAuthorizationURL(String callbackURL) {
         return getOAuthAuthorizationURL(callbackURL, new NullAuthOption());
     }
@@ -97,9 +100,7 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
 
     public String getOAuthAuthorizationURL(String callbackURL, AuthOption authOption) {
         this.callbackURL = callbackURL;
-        String url = conf.getOAuthAuthorizationURL() +
-                "?client_id=" + this.appId +
-                "&redirect_uri=" + callbackURL;
+        String url = conf.getOAuthAuthorizationURL() + "?client_id=" + this.appId + "&redirect_uri=" + callbackURL;
         if (this.permissions != null) {
             url += "&scope=" + this.permissions;
         }
@@ -113,8 +114,7 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
         if (nonce == null) {
             logger.warn("strongly encourage to use 'nonce' parameter, especially when requesting reauthenticate.");
         }
-        return getOAuthAuthorizationURL(callbackURL,
-                new DialogAuthOption().authType(AuthType.REAUTHENTICATE).authNonce(nonce));
+        return getOAuthAuthorizationURL(callbackURL, new DialogAuthOption().authType(AuthType.REAUTHENTICATE).authNonce(nonce));
     }
 
     public AccessToken getOAuthAccessToken(String oauthCode) throws FacebookException {
@@ -133,11 +133,7 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
     }
 
     protected String getExchangeAccessTokenURL(String oauthCode) {
-        return conf.getOAuthAccessTokenURL() +
-                "?client_id=" + this.appId + 
-                "&client_secret=" + this.appSecret + 
-                "&redirect_uri=" + this.callbackURL +
-                "&code=" + oauthCode;
+        return conf.getOAuthAccessTokenURL() + "?client_id=" + this.appId + "&client_secret=" + this.appSecret + "&redirect_uri=" + this.callbackURL + "&code=" + oauthCode;
     }
 
     public AccessToken getOAuthAccessToken() {
@@ -156,10 +152,7 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
     }
 
     private String getAppAccessTokenURL() {
-        return conf.getOAuthAccessTokenURL() +
-                "?client_id=" + this.appId + 
-                "&client_secret=" + this.appSecret + 
-                "&grant_type=client_credentials";
+        return conf.getOAuthAccessTokenURL() + "?client_id=" + this.appId + "&client_secret=" + this.appSecret + "&grant_type=client_credentials";
     }
 
     public DeviceCode getOAuthDeviceCode() throws FacebookException {
@@ -172,10 +165,7 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
     }
 
     private String getDeviceCodeURL() {
-        return conf.getOAuthDeviceTokenURL() +
-                "?type=device_code" +
-                "&client_id=" + this.appId +
-                "&scope=" + this.permissions;
+        return conf.getOAuthDeviceTokenURL() + "?type=device_code" + "&client_id=" + this.appId + "&scope=" + this.permissions;
     }
 
     public AccessToken getOAuthDeviceToken(DeviceCode deviceCode) throws FacebookException {
@@ -189,10 +179,7 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
     }
 
     private String getDeviceTokenURL(String deviceCode) {
-        return conf.getOAuthDeviceTokenURL() +
-                "?type=device_token" +
-                "&client_id=" + this.appId +
-                "&code=" + deviceCode;
+        return conf.getOAuthDeviceTokenURL() + "?type=device_token" + "&client_id=" + this.appId + "&code=" + deviceCode;
     }
 
     public void setOAuthAccessToken(AccessToken accessToken) {
@@ -231,12 +218,12 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
         return this.oauthToken;
     }
 
+    public AccessToken extendTokenExpiration() throws FacebookException {
+        return extendTokenExpiration(this.oauthToken.getToken());
+    }
+
     protected String getExtendTokenURL(String shortLivedToken) {
-        return conf.getOAuthAccessTokenURL() +
-                "?grant_type=fb_exchange_token" +
-                "&client_id=" + this.appId +
-                "&client_secret=" + this.appSecret +
-                "&fb_exchange_token=" + shortLivedToken;
+        return conf.getOAuthAccessTokenURL() + "?grant_type=fb_exchange_token" + "&client_id=" + this.appId + "&client_secret=" + this.appSecret + "&fb_exchange_token=" + shortLivedToken;
     }
 
     public AccessToken getOAuthAccessTokenInfo(String accessToken) throws FacebookException {
@@ -253,11 +240,8 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
     }
 
     protected String getAccessTokenInfoURL(String accessToken) {
-        return conf.getOAuthAccessTokenInfoURL() +
-                "?client_id=" + this.appId +
-                "&access_token=" + accessToken;
+        return conf.getOAuthAccessTokenInfoURL() + "?client_id=" + this.appId + "&access_token=" + accessToken;
     }
-
 
     public void setAppSecretProofEnabled(boolean enabled) {
         this.appSecretProofEnabled = enabled;
@@ -268,7 +252,6 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
     }
 
     // implementations for Security
-
     /**
      * Computes a appsecret_proof value using the HMAC method.
      * 
@@ -279,7 +262,6 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
         if (appSecret == null || !isEnabled()) {
             throw new IllegalStateException("App Secret and Access Token are required.");
         }
-
         String accessToken = oauthToken.getToken();
         String cache = appSecretProofCache.get(accessToken);
         if (cache != null) {
@@ -296,7 +278,6 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
         } catch (InvalidKeyException e) {
             throw new IllegalStateException();
         }
-
         StringBuilder result = new StringBuilder();
         for (byte b : byteHMAC) {
             result.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
@@ -306,22 +287,16 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
         return appSecretProof;
     }
 
-
-
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((appId == null) ? 0 : appId.hashCode());
-        result = prime * result
-                + ((appSecret == null) ? 0 : appSecret.hashCode());
-        result = prime * result
-                + ((callbackURL == null) ? 0 : callbackURL.hashCode());
+        result = prime * result + ((appSecret == null) ? 0 : appSecret.hashCode());
+        result = prime * result + ((callbackURL == null) ? 0 : callbackURL.hashCode());
         result = prime * result + ((conf == null) ? 0 : conf.hashCode());
-        result = prime * result
-                + ((oauthToken == null) ? 0 : oauthToken.hashCode());
-        result = prime * result
-                + ((permissions == null) ? 0 : permissions.hashCode());
+        result = prime * result + ((oauthToken == null) ? 0 : oauthToken.hashCode());
+        result = prime * result + ((permissions == null) ? 0 : permissions.hashCode());
         return result;
     }
 
@@ -364,10 +339,6 @@ public class OAuthAuthorization implements Authorization, OAuthSupport, Security
 
     @Override
     public String toString() {
-        return "OAuthAuthorization [appId=" + appId
-                + ", appSecret=****************" + ", oauthToken=" + oauthToken
-                + ", permissions=" + permissions + ", callbackURL="
-                + callbackURL + "]";
+        return "OAuthAuthorization [appId=" + appId + ", appSecret=****************" + ", oauthToken=" + oauthToken + ", permissions=" + permissions + ", callbackURL=" + callbackURL + "]";
     }
-
 }
